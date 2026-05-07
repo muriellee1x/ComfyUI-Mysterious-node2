@@ -134,5 +134,42 @@ app.registerExtension({
                 };
             }
         };
-    }
+    },
+
+    /**
+     * key_color / bg_color are declared as "*" (wildcard) so that any color
+     * node output type (COLOR, COLORCODE, etc.) is accepted without a
+     * server-side type-mismatch error.  Because "*" inputs don't get an
+     * automatic widget, we inject the color-picker widgets here and splice
+     * them into the correct positions so that widget_values serialisation
+     * stays in sync with INPUT_TYPES ordering:
+     *   image(slot), key_mode[0], key_color[1], background_mode[2],
+     *   bg_color[3], tolerance[4], clip_black[5], clip_white[6]
+     */
+    nodeCreated(node) {
+        if (node.comfyClass !== "KeylightCoreHubV3") return;
+
+        // If getCustomWidgets already created these (e.g. type was COLORCODE),
+        // skip to avoid duplicates.
+        if (node.widgets && node.widgets.some(w => w.name === "key_color")) return;
+
+        const keyColorWidget = AILabColorWidget.COLORCODE("key_color", "#00FF00");
+        const bgColorWidget  = AILabColorWidget.COLORCODE("bg_color",  "#000000");
+
+        if (!node.widgets) node.widgets = [];
+
+        // Auto-created widgets without key_color / bg_color:
+        //   [0] key_mode  [1] background_mode  [2] tolerance
+        //   [3] clip_black  [4] clip_white
+        // Insert key_color at 1, then bg_color at 3.
+        node.widgets.splice(1, 0, keyColorWidget);
+        node.widgets.splice(3, 0, bgColorWidget);
+
+        // Link each widget to its input slot so LiteGraph hides the widget
+        // automatically when the slot is connected.
+        const keyColorInput = node.inputs && node.inputs.find(i => i.name === "key_color");
+        const bgColorInput  = node.inputs && node.inputs.find(i => i.name === "bg_color");
+        if (keyColorInput) keyColorInput.widget = { name: "key_color" };
+        if (bgColorInput)  bgColorInput.widget  = { name: "bg_color" };
+    },
 });
