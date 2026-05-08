@@ -249,11 +249,8 @@
 - 检查 ComfyUI 启动控制台是否有报错
 - 更新 ComfyUI 到最新版本
 - 浏览器硬刷新/清除缓存
-
-**问题**：云平台报颜色类型不匹配（`COLOR`/`COLORCODE` mismatch）
-- V2.3.7 起，`key_color` 和 `bg_color` 输入类型改为通配符 `*`，可接受任意颜色节点输出（`COLOR`、`COLORCODE` 等），重新提交工作流即可
+- 本节点使用前端 `COLORCODE` 颜色控件，需要正确加载 `web/` 扩展
 
 **问题**：颜色选择器不工作
-- 本地环境：`web/colorWidget.js` 提供颜色选择器，确保文件存在并重启 ComfyUI
-- 云平台/API 模式：直接连接平台颜色节点即可，无需本地颜色控件
+- 确保 `web/colorWidget.js` 文件存在
 - 重启 ComfyUI 并刷新浏览器

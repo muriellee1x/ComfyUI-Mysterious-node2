@@ -14,9 +14,9 @@ class KeylightCoreHubV3:
         return {"required": {
                 "image": ("IMAGE",),
                 "key_mode": (["auto","manual"], {"default":"auto"}),
-                "key_color": ("*", {"default": "#00FF00"}),
+                "key_color": ("COLORCODE", {"default": "#00FF00"}),
                 "background_mode": (["alpha","color","soft_color"], {"default":"alpha"}),
-                "bg_color": ("*", {"default": "#000000"}),
+                "bg_color": ("COLORCODE", {"default": "#000000"}),
                 "tolerance": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 2.0, "step": 0.01}),
                 "clip_black": ("FLOAT", {"default": -0.02, "min": -1.0, "max": 1.0, "step": 0.001}),
                 "clip_white": ("FLOAT", {"default": 0.30, "min": 0.0, "max": 2.0, "step": 0.001}),
@@ -68,14 +68,9 @@ class KeylightCoreHubV3:
         mean = patch.reshape(N,-1,3).mean(dim=1)
         return mean.view(N,3,1,1)
 
-    def apply(self, image, key_mode, key_color="#00FF00", background_mode="alpha", bg_color="#000000",
-              tolerance=1.0, clip_black=-0.02, clip_white=0.30,
+    def apply(self, image, key_mode, key_color, background_mode, bg_color,
+              tolerance, clip_black, clip_white,
               sampler_args=None, edge_args=None, spill_algo_args=None, ph_args=None, mm_args=None):
-        if key_color is None:
-            key_color = "#00FF00"
-        if bg_color is None:
-            bg_color = "#000000"
-
         # Normalize image to BCHW [N,3,H,W]
         x_bchw = self._ensure_bchw(image).float().clamp(0,1)
         if x_bchw.shape[1] == 1:
